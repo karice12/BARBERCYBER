@@ -2,6 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes';
+import staffRoutes from './routes/staffRoutes';
+import appointmentRoutes from './routes/appointmentRoutes';
+import financeRoutes from './routes/financeRoutes';
+import reportRoutes from './routes/reportRoutes';
 
 dotenv.config();
 
@@ -17,6 +21,10 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/staff', staffRoutes);
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/finance', financeRoutes);
+app.use('/api/reports', reportRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
