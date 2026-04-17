@@ -53,3 +53,8 @@ externalPort = 3000
 deploymentTarget = "static"
 build = ["npm", "run", "build"]
 publicDir = "dist"
+
+[userenv]
+
+[userenv.shared]
+FRONTEND_URL = "https://barbercyber.vercel.app"
