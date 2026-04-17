@@ -1,13 +1,90 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum PlanType {
+  ESSENTIAL
+  ENTERPRISE
+}
+
+enum AppointmentStatus {
+  PENDING
+  COMPLETED
+  CANCELED
+  NO_SHOW
+}
+
+model User {
+  id            String        @id @default(uuid()) @db.Uuid
+  name          String
+  email         String        @unique
+  password      String
+  planType      PlanType      @default(ESSENTIAL)
+  hasPlus5Addon Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+
+  staff         Staff[]
+  appointments  Appointment[]
+  transactions  Transaction[]
+
+  @@map("users")
+}
+
+model Staff {
+  id             String        @id @default(uuid()) @db.Uuid
+  name           String
+  specialty      String
+  commissionRate Float         @default(0.40)
+  isAvailable    Boolean
+  userId         String        @db.Uuid
+  createdAt      DateTime      @default(now())
+
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointments   Appointment[]
+
+  @@index([userId])
+  @@map("staff")
+}
+
+model Appointment {
+  id           String            @id @default(uuid()) @db.Uuid
+  clientName   String
+  clientPhone  String
+  serviceName  String
+  price        Float
+  scheduledAt  DateTime
+  status       AppointmentStatus @default(PENDING)
+  staffId      String            @db.Uuid
+  userId       String            @db.Uuid
+
+  staff        Staff             @relation(fields: [staffId], references: [id], onDelete: Restrict)
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transaction  Transaction?
+
+  @@index([staffId])
+  @@index([userId])
+  @@index([scheduledAt])
+  @@map("appointments")
+}
+
+model Transaction {
+  id              String      @id @default(uuid()) @db.Uuid
+  grossValue      Float
+  commissionValue Float
+  netProfit       Float
+  date            DateTime
+  appointmentId   String      @unique @db.Uuid
+  userId          String      @db.Uuid
+
+  appointment     Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([date])
+  @@map("transactions")
 }
