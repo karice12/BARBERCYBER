@@ -14,12 +14,13 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const isProduction = process.env.NODE_ENV === 'production';
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5000',
-  process.env.FRONTEND_URL,
-].filter(Boolean) as string[];
+const devOrigins = ['http://localhost:5173', 'http://localhost:5000'];
+
+const allowedOrigins: string[] = isProduction
+  ? [process.env.FRONTEND_URL].filter(Boolean) as string[]
+  : [...devOrigins, process.env.FRONTEND_URL].filter(Boolean) as string[];
 
 app.use(
   cors({
@@ -36,7 +37,11 @@ app.use(
   })
 );
 
-app.use('/api/webhooks', express.raw({ type: 'application/json' }), webhookRoutes);
+app.use(
+  '/api/webhooks',
+  express.raw({ type: 'application/json' }),
+  webhookRoutes
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -55,9 +60,11 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/reports', reportRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Docs available at http://localhost:${PORT}/api-docs`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Docs available at http://localhost:${PORT}/api-docs`);
+  });
+}
 
 export default app;
