@@ -8,6 +8,7 @@ import staffRoutes from './routes/staffRoutes';
 import appointmentRoutes from './routes/appointmentRoutes';
 import financeRoutes from './routes/financeRoutes';
 import reportRoutes from './routes/reportRoutes';
+import webhookRoutes from './routes/webhookRoutes';
 
 dotenv.config();
 
@@ -34,6 +35,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use('/api/webhooks', express.raw({ type: 'application/json' }), webhookRoutes);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
