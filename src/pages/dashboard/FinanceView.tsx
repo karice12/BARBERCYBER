@@ -1,11 +1,16 @@
-import { motion } from 'motion/react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   TrendingUp, 
   TrendingDown, 
   DollarSign, 
   Users, 
   Download,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  FileText,
+  Printer,
+  X,
+  CheckCircle2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +23,18 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { cn } from '@/lib/utils';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const FINANCIAL_STATS = [
   { label: 'Faturamento Total', value: 'R$ 15.420,00', change: '+12%', icon: <TrendingUp className="text-cyber-blue" />, up: true },
@@ -35,6 +52,73 @@ const COMMISSION_DATA = [
 ];
 
 export default function FinanceView() {
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const generateDailyPDF = () => {
+    setIsGenerating(true);
+    
+    // Simulate slight delay for "generation" feel
+    setTimeout(() => {
+      const doc = new jsPDF();
+      const today = new Date().toLocaleDateString('pt-BR');
+      
+      // Header
+      doc.setFontSize(22);
+      doc.setTextColor(0, 209, 255); // Cyber Blue
+      doc.text('BARBERCYBER PRO', 105, 20, { align: 'center' });
+      
+      doc.setFontSize(16);
+      doc.setTextColor(40, 40, 40);
+      doc.text(`RELATÓRIO DIÁRIO - ${today}`, 105, 30, { align: 'center' });
+      
+      // Horizontal Line
+      doc.setDrawColor(200, 200, 200);
+      doc.line(20, 35, 190, 35);
+
+      // Summary Stats
+      doc.setFontSize(12);
+      doc.text('RESUMO FINANCEIRO:', 20, 45);
+      
+      autoTable(doc, {
+        startY: 50,
+        head: [['Métrica', 'Valor']],
+        body: [
+          ['Faturamento Bruto', 'R$ 1.250,00'],
+          ['Serviços Realizados', '18'],
+          ['Comissões Totais', 'R$ 500,00'],
+          ['Lucro Líquido do Dia', 'R$ 750,00'],
+          ['Média por Cliente', 'R$ 69,44'],
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [0, 209, 255] }
+      });
+
+      // Daily Details
+      doc.text('DESEMPENHO POR BARBEIRO:', 20, (doc as any).lastAutoTable.finalY + 15);
+      
+      autoTable(doc, {
+        startY: (doc as any).lastAutoTable.finalY + 20,
+        head: [['Barbeiro', 'Serviços', 'Receita Bruta', 'Comissão']],
+        body: [
+          ['Zeca Cyber', '8', 'R$ 450,00', 'R$ 180,00'],
+          ['Rick Neon', '6', 'R$ 380,00', 'R$ 152,00'],
+          ['Léo Blade', '4', 'R$ 420,00', 'R$ 168,00'],
+        ],
+        theme: 'grid',
+        headStyles: { fillColor: [0, 209, 255] }
+      });
+
+      // Footer
+      doc.setFontSize(10);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 105, 285, { align: 'center' });
+      
+      doc.save(`relatorio-diario-barbercyber-${today.replace(/\//g, '-')}.pdf`);
+      setIsGenerating(false);
+    }, 1200);
+  };
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* Stats Grid */}
@@ -139,9 +223,93 @@ export default function FinanceView() {
               <p className="text-xs leading-relaxed text-[#888888]">Aluguel Estação Cyber em <span className="text-foreground font-bold italic underline">2 dias</span>. Reserva R$ 2.500.</p>
             </div>
 
-            <Button className="w-full bg-[#00D1FF] text-black font-black uppercase tracking-tighter h-12 hover:scale-[1.02] transition-transform rounded-lg">
-              RELATÓRIO DO DIA
-            </Button>
+            <Dialog open={isReportOpen} onOpenChange={setIsReportOpen}>
+              <DialogTrigger render={
+                <Button className="w-full bg-[#00D1FF] text-black font-black uppercase tracking-tighter h-12 hover:scale-[1.02] transition-transform rounded-lg">
+                  RELATÓRIO DO DIA
+                </Button>
+              } />
+              <DialogContent className="max-w-2xl bg-[#0a0a0a] border-white/10 text-white rounded-2xl overflow-hidden p-0">
+                <div className="bg-cyber-blue h-1 w-full" />
+                <div className="p-8">
+                  <DialogHeader>
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <DialogTitle className="text-3xl font-heading font-black tracking-tight uppercase">FECHAMENTO DIÁRIO</DialogTitle>
+                        <DialogDescription className="text-muted-foreground uppercase text-[10px] font-bold tracking-widest mt-1">
+                          Dados consolidados de hoje: {new Date().toLocaleDateString('pt-BR')}
+                        </DialogDescription>
+                      </div>
+                      <Badge className="bg-cyber-blue/10 text-cyber-blue border-cyber-blue/20">ESTÁVEL</Badge>
+                    </div>
+                  </DialogHeader>
+
+                  <div className="grid grid-cols-2 gap-4 my-6">
+                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                      <p className="text-[9px] uppercase font-black text-[#888888] mb-1">Faturamento Bruto</p>
+                      <p className="text-2xl font-bold">R$ 1.250,00</p>
+                    </div>
+                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                      <p className="text-[9px] uppercase font-black text-[#888888] mb-1">Serviços Totais</p>
+                      <p className="text-2xl font-bold">18 Fluxos</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h4 className="text-[10px] uppercase font-black tracking-widest text-[#888888]">Detalhamento por Operador</h4>
+                    <div className="bg-white/5 rounded-xl border border-white/5 overflow-hidden">
+                      <Table>
+                        <TableHeader className="bg-white/5">
+                          <TableRow className="border-none hover:bg-transparent">
+                            <TableHead className="text-[9px] uppercase font-black tracking-widest text-[#888888] h-8">Barbeiro</TableHead>
+                            <TableHead className="text-[9px] uppercase font-black tracking-widest text-[#888888] h-8">Serv.</TableHead>
+                            <TableHead className="text-[9px] uppercase font-black tracking-widest text-[#888888] h-8 text-right">Valor</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow className="border-white/5 hover:bg-white/5">
+                            <TableCell className="text-xs font-bold py-3">Zeca Cyber</TableCell>
+                            <TableCell className="text-xs py-3">08</TableCell>
+                            <TableCell className="text-xs font-bold text-cyber-blue py-3 text-right">R$ 450,00</TableCell>
+                          </TableRow>
+                          <TableRow className="border-white/5 hover:bg-white/5">
+                            <TableCell className="text-xs font-bold py-3">Rick Neon</TableCell>
+                            <TableCell className="text-xs py-3">06</TableCell>
+                            <TableCell className="text-xs font-bold text-cyber-blue py-3 text-right">R$ 380,00</TableCell>
+                          </TableRow>
+                          <TableRow className="border-none hover:bg-white/5">
+                            <TableCell className="text-xs font-bold py-3">Léo Blade</TableCell>
+                            <TableCell className="text-xs py-3">04</TableCell>
+                            <TableCell className="text-xs font-bold text-cyber-blue py-3 text-right">R$ 420,00</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 flex gap-3">
+                    <Button 
+                      onClick={generateDailyPDF}
+                      disabled={isGenerating}
+                      className="flex-1 bg-white text-black font-black uppercase tracking-tighter h-11 hover:bg-cyber-blue transition-colors rounded-none"
+                    >
+                      {isGenerating ? (
+                        <>PROCESSANDO...</>
+                      ) : (
+                        <>BAIXAR PDF COMPLETO <Download size={14} className="ml-2" /></>
+                      )}
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => setIsReportOpen(false)}
+                      className="border-white/10 uppercase font-black tracking-widest text-[9px] h-11 px-6 rounded-none hover:bg-white/5"
+                    >
+                      FECHAR
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Button variant="outline" className="w-full border-cyber-blue/15 uppercase font-black tracking-widest text-[10px] h-12 rounded-lg hover:bg-white/5">
                CONCILIAR PIX
             </Button>
@@ -152,4 +320,3 @@ export default function FinanceView() {
   );
 }
 
-import { cn } from '@/lib/utils';

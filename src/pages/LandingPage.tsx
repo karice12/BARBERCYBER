@@ -118,24 +118,57 @@ export default function LandingPage() {
       {/* Pricing Section */}
       <section id="pricing" className="py-32 px-6 bg-white/[0.01] border-y border-cyber-blue/10">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-5xl font-sans font-black mb-6 uppercase tracking-tight">O PLANO PRO</h2>
-          <p className="text-[#888888] mb-16 text-lg">Tudo liberado para o seu sucesso. Sem taxas escondidas.</p>
+          <h2 className="text-5xl font-sans font-black mb-6 uppercase tracking-tight">ESCOLHA SEU PLANO</h2>
+          <p className="text-[#888888] mb-16 text-lg">Escalabilidade total para barbearias de qualquer tamanho.</p>
           
-          <div className="max-w-xl mx-auto p-16 rounded-[2rem] border-2 border-cyber-blue bg-[#0f0f0f] relative shadow-[0_0_40px_rgba(0,209,255,0.1)]">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-cyber-blue px-6 py-1.5 rounded-full text-[#050505] text-[0.7rem] font-black tracking-widest uppercase">
-              RECOMENDADO
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Essential Plan */}
+            <div className="p-10 rounded-[2rem] border border-cyber-blue/20 bg-[#0f0f0f] relative flex flex-col items-center">
+              <div className="text-5xl font-sans font-black mb-4 tracking-tighter text-white">R$ 69<span className="text-xl text-[#888888] font-medium">,90/mês</span></div>
+              <p className="text-cyber-blue font-bold tracking-[0.2em] mb-8 uppercase text-xs">CYBER ESSENTIAL</p>
+              <ul className="text-left space-y-4 mb-10 flex-1">
+                <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-cyber-blue" size={18} /> Até 5 Funcionários</li>
+                <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-cyber-blue" size={18} /> Agenda Inteligente</li>
+                <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-cyber-blue" size={18} /> Finanças Básicas</li>
+                <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-cyber-blue" size={18} /> Relatórios: 3 / mês</li>
+              </ul>
+              <Link to="/dashboard" className="w-full">
+                <Button className="w-full bg-white text-black font-black h-12 rounded-xl text-sm hover:bg-cyber-blue transition-colors">ASSINAR AGORA</Button>
+              </Link>
             </div>
-            <div className="text-7xl font-sans font-black mb-4">R$ 149<span className="text-xl text-[#888888] font-medium">/mês</span></div>
-            <p className="text-cyber-blue font-bold tracking-[0.2em] mb-12 uppercase text-sm">ESSENCIAL CYBER</p>
-            <ul className="text-left space-y-6 mb-12">
-              <li className="flex items-center gap-4 text-white/90 font-medium"><ShieldCheck className="text-cyber-blue" size={24} /> Até 5 Profissionais Ativos</li>
-              <li className="flex items-center gap-4 text-white/90 font-medium"><ShieldCheck className="text-cyber-blue" size={24} /> Agenda Multi-Modo Densa</li>
-              <li className="flex items-center gap-4 text-white/90 font-medium"><ShieldCheck className="text-cyber-blue" size={24} /> Mensageria Automatizada</li>
-              <li className="flex items-center gap-4 text-white/90 font-medium"><ShieldCheck className="text-cyber-blue" size={24} /> Dashboard Financeira Completa</li>
-            </ul>
-            <Link to="/dashboard">
-              <Button className="w-full bg-cyber-blue text-[#050505] font-black h-16 rounded-xl text-lg hover:scale-[1.02] transition-transform">COMEÇAR AGORA</Button>
-            </Link>
+
+            {/* Extension Plan */}
+            <div className="p-10 rounded-[2rem] border border-white/10 bg-[#0f0f0f] relative flex flex-col items-center">
+              <div className="text-5xl font-sans font-black mb-4 tracking-tighter text-white">R$ 29<span className="text-xl text-[#888888] font-medium">,90/mês</span></div>
+              <p className="text-white/50 font-bold tracking-[0.2em] mb-8 uppercase text-xs">+5 FUNCIONÁRIOS</p>
+              <ul className="text-left space-y-4 mb-10 flex-1">
+                <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-white/40" size={18} /> +5 Slots de Funcionários</li>
+                <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-white/40" size={18} /> Recurso Adicional</li>
+                <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-white/40" size={18} /> Controle Total</li>
+                <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-white/40" size={18} /> Sem taxas extras</li>
+              </ul>
+              <Link to="/dashboard" className="w-full">
+                <Button className="w-full border border-white/20 text-white font-black h-12 rounded-xl text-sm hover:bg-white hover:text-black transition-all">CONTRATAR ADICIONAL</Button>
+              </Link>
+            </div>
+
+            {/* Enterprise Plan */}
+            <div className="p-10 rounded-[2rem] border-2 border-cyber-orange bg-[#0f0f0f] relative flex flex-col items-center shadow-[0_0_40px_rgba(255,153,0,0.1)]">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-cyber-orange px-6 py-1.5 rounded-full text-black text-[0.6rem] font-black tracking-widest uppercase">
+                RECOMENDADO
+              </div>
+              <div className="text-5xl font-sans font-black mb-4 tracking-tighter text-white">R$ 149<span className="text-xl text-[#888888] font-medium">,90/mês</span></div>
+              <p className="text-cyber-orange font-bold tracking-[0.2em] mb-8 uppercase text-xs">PLANO ENTERPRISE</p>
+              <ul className="text-left space-y-4 mb-10 flex-1">
+                <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-cyber-orange" size={18} /> Funcionários ILIMITADOS</li>
+                <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-cyber-orange" size={18} /> Suporte Prioritário</li>
+                <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-cyber-orange" size={18} /> Políticas de Agendamento</li>
+                <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-cyber-orange" size={18} /> Relatórios Ilimitados</li>
+              </ul>
+              <Link to="/dashboard" className="w-full">
+                <Button className="w-full bg-cyber-orange text-black font-black h-12 rounded-xl text-sm hover:bg-white transition-colors">UPGRADE TOTAL</Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

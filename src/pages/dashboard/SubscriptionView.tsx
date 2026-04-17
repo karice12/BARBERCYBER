@@ -1,113 +1,160 @@
 import { motion } from 'motion/react';
 import { 
-  CreditCard, 
   Zap, 
   ShieldCheck, 
-  ExternalLink,
-  Crown,
-  Check
+  Crown
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 export default function SubscriptionView() {
+  const PLANS = [
+    {
+      name: 'CYBER ESSENTIAL',
+      price: '69,90',
+      description: 'O núcleo do seu negócio digital.',
+      features: ['Até 5 Funcionários', 'Agenda Inteligente', 'Finanças Básicas', 'Relatórios: 3 / mês'],
+      color: 'text-cyber-blue',
+      borderColor: 'border-cyber-blue/20',
+      icon: <Zap size={18} className="text-cyber-blue" />
+    },
+    {
+      name: '+5 FUNCIONÁRIOS',
+      price: '29,90',
+      description: 'Aumente sua força de trabalho.',
+      features: ['+5 Slots de Funcionários', 'Recurso Adicional', 'Controle Total', 'Sem taxas extras'],
+      color: 'text-white',
+      borderColor: 'border-white/10',
+      icon: <Crown size={18} className="text-white" />
+    },
+    {
+      name: 'PLANO ENTERPRISE',
+      price: '149,90',
+      description: 'Potência máxima ilimitada.',
+      features: ['Funcionários ILIMITADOS', 'Suporte Prioritário', 'Políticas de Agendamento'],
+      color: 'text-cyber-orange',
+      borderColor: 'border-cyber-orange/30',
+      icon: <Zap size={18} className="text-cyber-orange" />,
+      isPremium: true
+    }
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto space-y-10">
+    <div className="max-w-6xl mx-auto space-y-10">
       <div className="text-center">
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyber-blue/10 border border-cyber-blue/30 text-cyber-blue text-[10px] font-black uppercase tracking-[0.2em] mb-4"
         >
-          <Crown size={12} /> STATUS: PLANO ATIVO
+          <Zap size={12} /> UPGRADE DE CAPACIDADE
         </motion.div>
-        <h2 className="text-4xl font-heading font-black uppercase tracking-tight mb-2">GESTÃO DE ASSINATURA SAAS</h2>
-        <p className="text-muted-foreground uppercase text-xs tracking-widest">Controle seus recursos e pagamentos via Stripe.</p>
+        <h2 className="text-4xl font-heading font-black uppercase tracking-tight mb-2">MÓDULOS DE ASSINATURA</h2>
+        <p className="text-muted-foreground uppercase text-xs tracking-widest">Escolha a escala de processamento do seu BarberCyber.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Current Plan Card */}
-        <Card className="bg-white/[0.03] border-white/10 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-cyber-blue/5 to-transparent pointer-events-none" />
-          <CardHeader>
-            <CardTitle className="font-heading font-black text-2xl uppercase italic text-cyber-blue">CYBER ESSENTIAL</CardTitle>
-            <CardDescription className="text-xs uppercase tracking-widest font-bold">Assinatura Mensal Ativa</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-3">
-              <div className="flex justify-between items-end border-b border-white/5 pb-2">
-                <span className="text-[10px] uppercase font-bold text-muted-foreground">Valor Mensal</span>
-                <span className="text-xl font-black">R$ 149,00</span>
-              </div>
-              <div className="flex justify-between items-end border-b border-white/5 pb-2">
-                <span className="text-[10px] uppercase font-bold text-muted-foreground">Próximo Vencimento</span>
-                <span className="text-xs font-black uppercase">12 de Maio, 2026</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">Uso de Recursos</p>
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px] font-bold uppercase tracking-tighter">
-                  <span>Profissionais ativos</span>
-                  <span>5/5</span>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {PLANS.map((plan, idx) => (
+          <motion.div
+            key={plan.name}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
+          >
+            <Card className={cn(
+              "h-full bg-[#0a0a0a] border-2 relative overflow-hidden flex flex-col group transition-all duration-500 hover:border-cyber-blue/50",
+              plan.borderColor,
+              plan.isPremium ? "hover:border-cyber-orange/50" : ""
+            )}>
+              {plan.isPremium && (
+                <div className="absolute top-0 right-0">
+                  <Badge className="rounded-none bg-cyber-orange text-black font-black text-[8px] tracking-widest px-3 py-1 uppercase">RECOMENDADO</Badge>
                 </div>
-                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-cyber-blue w-full shadow-[0_0_10px_rgba(0,229,255,0.5)]" />
-                </div>
-                <p className="text-[8px] text-cyber-orange uppercase font-black italic">Você atingiu o limite do seu plano.</p>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full bg-white text-black font-black uppercase tracking-tighter h-12 hover:bg-cyber-blue transition-colors rounded-none">
-              GERENCIAR NO STRIPE <ExternalLink size={14} className="ml-2" />
-            </Button>
-          </CardFooter>
-        </Card>
-
-        {/* Upgrade Card */}
-        <Card className="bg-black border-2 border-dashed border-white/10 relative group hover:border-cyber-orange transition-colors">
-          <CardHeader>
-            <CardTitle className="font-heading font-black text-2xl uppercase italic text-muted-foreground group-hover:text-cyber-orange transition-colors">PLANO ENTERPRISE</CardTitle>
-            <CardDescription className="text-xs uppercase tracking-widest font-bold">Expanda suas fronteiras</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-             <div className="space-y-4">
-              {[
-                "Profissionais Ilimitados",
-                "Gestão de Franquias",
-                "Relatórios Customizados IA",
-                "Domínio Próprio de Agendamento",
-                "Suporte 24h Prioritário",
-              ].map((feature, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-cyber-orange/20 flex items-center justify-center">
-                    <Check size={12} className="text-cyber-orange" />
+              )}
+              
+              <CardHeader>
+                <div className="flex items-center justify-between mb-2">
+                  <div className={cn("p-2 bg-white/5 rounded-lg", plan.color)}>
+                    {plan.icon}
                   </div>
-                  <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{feature}</span>
+                  {plan.name === '+5 FUNCIONÁRIOS' && (
+                    <Badge variant="outline" className="border-white/20 text-[8px] font-black uppercase text-white/50">EXTENSÃO</Badge>
+                  )}
                 </div>
-              ))}
-            </div>
-            
-            <div className="pt-4">
-              <span className="text-3xl font-black">R$ 399</span>
-              <span className="text-xs text-muted-foreground uppercase ml-2">/mês</span>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full border-white/10 text-muted-foreground font-black uppercase tracking-tighter h-12 hover:bg-cyber-orange hover:text-black hover:border-cyber-orange transition-all rounded-none">
-              FAZER UPGRADE <Zap size={14} className="ml-2" />
-            </Button>
-          </CardFooter>
-        </Card>
+                <CardTitle className={cn("font-heading font-black text-xl uppercase italic", plan.color)}>
+                  {plan.name}
+                </CardTitle>
+                <CardDescription className="text-[10px] uppercase font-bold tracking-widest text-[#888888] pt-1">
+                  {plan.description}
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="flex-1 space-y-6">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-[10px] font-bold text-[#888888] uppercase">R$</span>
+                  <span className="text-4xl font-black tracking-tighter text-white">{plan.price.split(',')[0]}</span>
+                  <span className="text-xl font-black text-[#555555]">,{plan.price.split(',')[1]}</span>
+                  <span className="text-[10px] text-[#888888] font-bold uppercase ml-1">/mês</span>
+                </div>
+
+                <div className="space-y-3">
+                  {plan.features.map((feature, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className={cn("w-1.5 h-1.5 rounded-full", plan.isPremium ? "bg-cyber-orange" : "bg-cyber-blue")} />
+                      <span className="text-[10px] font-black uppercase tracking-wide text-[#aaaaaa]">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                {plan.name === '+5 FUNCIONÁRIOS' && (
+                  <p className="text-[9px] text-cyber-blue font-bold uppercase leading-tight mt-4 italic">
+                    * Requer plano Essencial ativo. Cancele este módulo quando desejar.
+                  </p>
+                )}
+              </CardContent>
+
+              <CardFooter className="pt-4 border-t border-white/5">
+                <Button 
+                  className={cn(
+                    "w-full font-black uppercase tracking-widest text-[11px] h-11 rounded-none transition-all duration-300",
+                    plan.isPremium 
+                      ? "bg-cyber-orange text-black hover:bg-white" 
+                      : "bg-white text-black hover:bg-cyber-blue"
+                  )}
+                >
+                  FAZER UPGRADE <Zap size={14} className="ml-2" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+        ))}
       </div>
+
+      {/* Dynamic Billing Disclaimer */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        className="bg-white/[0.02] border border-white/5 p-6 rounded-lg text-center"
+      >
+        <p className="text-[10px] uppercase font-black tracking-[0.2em] text-[#888888] mb-2">Regras de Faturamento Combinado</p>
+        <p className="text-xs font-bold text-[#aaaaaa] max-w-2xl mx-auto leading-relaxed">
+          Ao contratar o <span className="text-cyber-blue">CYBER ESSENTIAL (R$ 69,90)</span> + o módulo <span className="text-white">ADDON +5 (R$ 29,90)</span>, seu faturamento mensal será consolidado em <span className="text-white underline">R$ 98,80</span>. 
+          O cancelamento da extensão de funcionários pode ser feito a <span className="text-cyber-orange italic">qualquer momento</span> de forma independente.
+        </p>
+      </motion.div>
 
       {/* Security notice */}
-      <div className="flex items-center justify-center gap-4 py-6 border-t border-white/5 opacity-50">
-        <ShieldCheck size={20} />
-        <span className="text-[10px] uppercase font-bold tracking-[0.3em]">Ambiente criptografado e operado por Stripe Secure Gateway</span>
+      <div className="flex flex-col items-center gap-4 py-10 border-t border-white/5">
+        <div className="flex items-center gap-4 text-[#555555] group hover:text-white transition-colors">
+          <ShieldCheck size={20} />
+          <span className="text-[10px] uppercase font-bold tracking-[0.3em]">Ambiente criptografado - Stripe Secure Gateway</span>
+        </div>
+        <p className="text-[8px] text-[#666666] text-center max-w-sm uppercase tracking-[0.2em] font-bold leading-relaxed">
+          Sua transação é processada em infraestrutura de nível bancário. 
+          A ativação dos recursos é imediata após a compensação.
+        </p>
       </div>
     </div>
   );

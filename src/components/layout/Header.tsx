@@ -35,11 +35,11 @@ export function Header({ title }: { title: string }) {
           </Button>
           
           <Dialog>
-            <DialogTrigger asChild>
+            <DialogTrigger render={
               <Button className="bg-cyber-blue text-[#050505] font-black uppercase tracking-tighter shadow-[0_0_15px_rgba(0,209,255,0.2)] hover:bg-cyber-blue/90 h-10 px-6 rounded-lg transition-all active:scale-95 group">
                 <Plus size={18} className="mr-2 group-hover:rotate-90 transition-transform" /> NOVO
               </Button>
-            </DialogTrigger>
+            } />
             <DialogContent className="bg-[#0f0f0f] border-cyber-blue/20 text-white max-w-md p-0 overflow-hidden rounded-2xl">
               <div className="bg-gradient-to-r from-cyber-blue/20 to-transparent p-6 border-b border-white/5">
                 <DialogTitle className="font-heading font-black text-2xl uppercase tracking-tighter mb-1">NOVO AGENDAMENTO</DialogTitle>
