@@ -5,6 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum PlanType {
@@ -20,20 +21,38 @@ enum AppointmentStatus {
 }
 
 model User {
-  id            String        @id @default(uuid()) @db.Uuid
+  id            String          @id @default(uuid()) @db.Uuid
   name          String
-  email         String        @unique
+  email         String          @unique
   password      String
-  planType      PlanType      @default(ESSENTIAL)
-  hasPlus5Addon Boolean       @default(false)
-  createdAt     DateTime      @default(now())
+  planType      PlanType        @default(ESSENTIAL)
+  hasPlus5Addon Boolean         @default(false)
+  stripeCustomerId String?      @unique
+  stripeSubscriptionId String?  @unique
+  createdAt     DateTime        @default(now())
 
   staff         Staff[]
   appointments  Appointment[]
   transactions  Transaction[]
   reportLogs    ReportLog[]
+  businessHours BusinessHours[]
 
   @@map("users")
+}
+
+model BusinessHours {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  dayOfWeek Int      // 0 = domingo, 6 = sábado
+  openTime  String   // ex: "09:00"
+  closeTime String   // ex: "19:00"
+  isOpen    Boolean  @default(true)
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dayOfWeek])
+  @@index([userId])
+  @@map("business_hours")
 }
 
 model ReportLog {

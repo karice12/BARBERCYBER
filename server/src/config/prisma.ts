@@ -5,17 +5,13 @@ declare global {
   var __prisma: PrismaClient | undefined;
 }
 
-const dbUrl = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
-
-if (!dbUrl) {
-  throw new Error('Nenhuma URL de banco de dados configurada (SUPABASE_DATABASE_URL ou DATABASE_URL).');
+if (!process.env.DATABASE_URL) {
+  throw new Error('Variável de ambiente DATABASE_URL não configurada.');
 }
 
 const prisma: PrismaClient =
   globalThis.__prisma ??
-  new PrismaClient({
-    accelerateUrl: dbUrl,
-  });
+  new PrismaClient();
 
 if (process.env.NODE_ENV !== 'production') {
   globalThis.__prisma = prisma;

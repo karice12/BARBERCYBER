@@ -1,20 +1,20 @@
 import { motion } from 'motion/react';
-import { 
-  UserPlus, 
-  MoreHorizontal, 
-  Settings2, 
-  Award, 
+import {
+  UserPlus,
+  MoreHorizontal,
+  Award,
   DollarSign,
-  Star
+  Star,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Barber } from '@/types';
 
@@ -49,20 +49,26 @@ export default function TeamView() {
             className="group relative"
           >
             <div className="absolute -inset-0.5 bg-gradient-to-r from-cyber-blue/20 to-cyber-orange/20 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
-            
+
             <div className="relative bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 h-full flex flex-col">
               <div className="flex justify-between items-start mb-6">
                 <div className="relative">
                   <Avatar className="w-16 h-16 border-2 border-cyber-blue/30 p-1 bg-black">
                     <AvatarImage src={barber.avatar} />
-                    <AvatarFallback>{barber.name.substring(0,2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>{barber.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
-                  <div className={cn(
-                    "absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-[#0a0a0a]",
-                    barber.status === 'online' ? "bg-green-500" : barber.status === 'on-break' ? "bg-amber-500" : "bg-zinc-700"
-                  )} />
+                  <div
+                    className={cn(
+                      'absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-[#0a0a0a]',
+                      barber.status === 'online'
+                        ? 'bg-green-500'
+                        : barber.status === 'on-break'
+                        ? 'bg-amber-500'
+                        : 'bg-zinc-700'
+                    )}
+                  />
                 </div>
-                
+
                 <DropdownMenu>
                   <DropdownMenuTrigger className="p-2 text-muted-foreground hover:text-white transition-colors">
                     <MoreHorizontal size={20} />
@@ -78,7 +84,7 @@ export default function TeamView() {
               <div className="flex-1">
                 <h3 className="text-xl font-bold uppercase tracking-tight mb-1">{barber.name}</h3>
                 <p className="text-cyber-blue text-[10px] font-black uppercase tracking-[0.2em] mb-4">{barber.specialty}</p>
-                
+
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   <div className="bg-white/[0.03] border border-white/5 rounded-xl p-3">
                     <div className="flex items-center gap-2 mb-1 text-muted-foreground">
@@ -102,7 +108,7 @@ export default function TeamView() {
                     <span className="text-white">R$ 12.400</span>
                   </div>
                   <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                    <motion.div 
+                    <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: '75%' }}
                       className="h-full bg-cyber-blue shadow-[0_0_10px_rgba(0,209,255,0.4)]"
@@ -115,7 +121,7 @@ export default function TeamView() {
                 <Badge variant="outline" className="bg-white/5 border-white/10 text-[8px] font-black uppercase tracking-widest rounded-none">
                   <Award size={10} className="mr-1 text-cyber-orange" /> SÊNIOR
                 </Badge>
-                <div 
+                <div
                   className="ml-auto w-3 h-3 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)]"
                   style={{ backgroundColor: barber.color }}
                 />
@@ -127,5 +133,3 @@ export default function TeamView() {
     </div>
   );
 }
-
-import { cn } from '@/lib/utils';
