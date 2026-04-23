@@ -11,14 +11,14 @@ export async function daily(req: AuthenticatedRequest, res: Response): Promise<v
   const { date } = req.query;
 
   try {
-    const user = await prisma.user.findUnique({
+    const profile = await prisma.profile.findUnique({
       where: { id: userId },
       select: { planType: true },
     });
 
-    if (!user) { res.status(404).json({ error: 'Usuário não encontrado.' }); return; }
+    if (!profile) { res.status(404).json({ error: 'Perfil não encontrado.' }); return; }
 
-    if (user.planType === PlanType.ESSENTIAL) {
+    if (profile.planType === PlanType.ESSENTIAL) {
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
@@ -33,7 +33,7 @@ export async function daily(req: AuthenticatedRequest, res: Response): Promise<v
 
       if (usageCount >= ESSENTIAL_MONTHLY_LIMIT) {
         res.status(403).json({
-          error: `Limite de ${ESSENTIAL_MONTHLY_LIMIT} relatórios/mês atingido no plano ESSENTIAL. Faça upgrade para ENTERPRISE para acesso ilimitado.`,
+          error: `Limite de ${ESSENTIAL_MONTHLY_LIMIT} relatórios/mês atingido no plano ESSENTIAL. Faça upgrade para ENTERPRISE.`,
           usageCount,
           limit: ESSENTIAL_MONTHLY_LIMIT,
         });
@@ -88,7 +88,8 @@ export async function daily(req: AuthenticatedRequest, res: Response): Promise<v
         totalNetProfit: parseFloat(financialSummary.totalNetProfit.toFixed(2)),
       },
     });
-  } catch {
+  } catch (err) {
+    console.error('[daily report] Erro:', err);
     res.status(500).json({ error: 'Erro interno ao gerar relatório.' });
   }
 }
