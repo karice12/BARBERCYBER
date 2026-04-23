@@ -9,6 +9,7 @@ import appointmentRoutes from './routes/appointmentRoutes';
 import financeRoutes from './routes/financeRoutes';
 import reportRoutes from './routes/reportRoutes';
 import webhookRoutes from './routes/webhookRoutes';
+import subscriptionRoutes from './routes/subscriptionRoutes';
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/subscription', subscriptionRoutes);
 
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {

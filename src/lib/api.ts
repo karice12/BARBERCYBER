@@ -28,7 +28,6 @@ async function request<T>(
   const res = await fetch(path, { ...options, headers });
 
   if (res.status === 401) {
-    // Token inválido ou expirado — limpa o armazenamento
     localStorage.removeItem(TOKEN_KEY);
     window.dispatchEvent(new CustomEvent('auth:logout'));
   }
@@ -38,7 +37,6 @@ async function request<T>(
     throw new ApiError(res.status, body.error || `Erro ${res.status}`);
   }
 
-  // Respostas 204 não têm corpo
   if (res.status === 204) return undefined as T;
 
   return res.json();
@@ -47,17 +45,19 @@ async function request<T>(
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
 export const authApi = {
-  profile: () => request<import('@/contexts/AuthContext').AuthUser>('/api/auth/profile'),
+  profile: () =>
+    request<import('@/contexts/AuthContext').AuthUser>('/api/auth/profile'),
 
   updateProfile: (data: {
     name?: string;
     email?: string;
     currentPassword?: string;
     newPassword?: string;
-  }) => request<import('@/contexts/AuthContext').AuthUser>('/api/auth/profile', {
-    method: 'PATCH',
-    body: JSON.stringify(data),
-  }),
+  }) =>
+    request<import('@/contexts/AuthContext').AuthUser>('/api/auth/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
 
   getBusinessHours: () =>
     request<BusinessHour[]>('/api/auth/business-hours'),
@@ -69,18 +69,44 @@ export const authApi = {
     }),
 };
 
+// ── Subscription / Stripe ─────────────────────────────────────────────────────
+
+export const subscriptionApi = {
+  createCheckout: (plan: 'ENTERPRISE' | 'PLUS5') =>
+    request<{ url: string }>('/api/subscription/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ plan }),
+    }),
+
+  cancelSubscription: () =>
+    request<void>('/api/subscription/cancel', { method: 'POST' }),
+};
+
 // ── Staff ─────────────────────────────────────────────────────────────────────
 
 export const staffApi = {
   list: () => request<StaffMember[]>('/api/staff'),
 
-  create: (data: { name: string; specialty: string; commissionRate: number }) =>
+  create: (data: {
+    name: string;
+    specialty: string;
+    commissionRate: number;
+    isAvailable: boolean;
+  }) =>
     request<StaffMember>('/api/staff', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  update: (id: string, data: Partial<{ name: string; specialty: string; commissionRate: number }>) =>
+  update: (
+    id: string,
+    data: Partial<{
+      name: string;
+      specialty: string;
+      commissionRate: number;
+      isAvailable: boolean;
+    }>
+  ) =>
     request<StaffMember>(`/api/staff/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -95,25 +121,31 @@ export const staffApi = {
 export const appointmentApi = {
   list: (params?: { date?: string; staffId?: string }) => {
     const qs = params
-      ? '?' + new URLSearchParams(Object.entries(params).filter(([, v]) => Boolean(v)) as [string, string][]).toString()
+      ? '?' +
+        new URLSearchParams(
+          Object.entries(params).filter(([, v]) => Boolean(v)) as [
+            string,
+            string,
+          ][]
+        ).toString()
       : '';
     return request<AppointmentRecord[]>(`/api/appointments${qs}`);
   },
 
   create: (data: {
     clientName: string;
-    staffId: string;
-    startTime: string;
-    endTime: string;
-    service: string;
+    clientPhone: string;
+    serviceName: string;
     price: number;
+    scheduledAt: string;
+    staffId: string;
   }) =>
     request<AppointmentRecord>('/api/appointments', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  updateStatus: (id: string, status: string) =>
+  updateStatus: (id: string, status: AppointmentRecord['status']) =>
     request<AppointmentRecord>(`/api/appointments/${id}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
@@ -125,7 +157,13 @@ export const appointmentApi = {
 export const financeApi = {
   summary: (params?: { startDate?: string; endDate?: string }) => {
     const qs = params
-      ? '?' + new URLSearchParams(Object.entries(params).filter(([, v]) => Boolean(v)) as [string, string][]).toString()
+      ? '?' +
+        new URLSearchParams(
+          Object.entries(params).filter(([, v]) => Boolean(v)) as [
+            string,
+            string,
+          ][]
+        ).toString()
       : '';
     return request<FinanceSummary>(`/api/finance/summary${qs}`);
   },
@@ -139,6 +177,7 @@ export interface StaffMember {
   specialty: string;
   commissionRate: number;
   avatarUrl?: string | null;
+  isAvailable: boolean;
   isActive: boolean;
   createdAt: string;
 }
@@ -146,14 +185,14 @@ export interface StaffMember {
 export interface AppointmentRecord {
   id: string;
   clientName: string;
-  staffId: string;
-  startTime: string;
-  endTime: string;
-  service: string;
+  clientPhone: string;
+  serviceName: string;
   price: number;
+  scheduledAt: string;
   status: 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  staffId: string;
   createdAt: string;
-  staff?: StaffMember;
+  staff?: Pick<StaffMember, 'id' | 'name' | 'specialty'> | null;
 }
 
 export interface BusinessHour {
@@ -165,22 +204,11 @@ export interface BusinessHour {
 }
 
 export interface FinanceSummary {
-  totalRevenue: number;
-  totalCommissions: number;
-  netProfit: number;
+  period: { startDate: string; endDate: string };
   totalAppointments: number;
-  transactions: FinanceTransaction[];
-}
-
-export interface FinanceTransaction {
-  id: string;
-  amount: number;
-  commission: number;
-  netAmount: number;
-  description: string;
-  date: string;
-  staffId?: string | null;
-  staff?: StaffMember | null;
+  totalGross: number;
+  totalCommission: number;
+  totalNetProfit: number;
 }
 
 export { ApiError };
