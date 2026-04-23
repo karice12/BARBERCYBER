@@ -1,17 +1,39 @@
+import { useState } from 'react';
 import { motion } from 'motion/react';
 import { 
   Zap, 
   ShieldCheck, 
-  Crown
+  Crown,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import StripeCheckout from '@/components/checkout/StripeCheckout';
 
 export default function SubscriptionView() {
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showCanceled, setShowCanceled] = useState(false);
+
+  // Verifica query params para mensagens de sucesso/cancelamento
+  useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true') {
+      setShowSuccess(true);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    if (params.get('canceled') === 'true') {
+      setShowCanceled(true);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  });
+
   const PLANS = [
     {
+      id: 'cyber-essential',
       name: 'CYBER ESSENTIAL',
       price: '69,90',
       description: 'O núcleo do seu negócio digital.',
@@ -21,6 +43,7 @@ export default function SubscriptionView() {
       icon: <Zap size={18} className="text-cyber-blue" />
     },
     {
+      id: 'addon-plus5',
       name: '+5 FUNCIONÁRIOS',
       price: '29,90',
       description: 'Aumente sua força de trabalho.',
@@ -30,6 +53,7 @@ export default function SubscriptionView() {
       icon: <Crown size={18} className="text-white" />
     },
     {
+      id: 'cyber-enterprise',
       name: 'PLANO ENTERPRISE',
       price: '149,90',
       description: 'Potência máxima ilimitada.',
@@ -41,8 +65,63 @@ export default function SubscriptionView() {
     }
   ];
 
+  const handleSubscribe = (productId: string) => {
+    setSelectedProduct(productId);
+  };
+
+  const handleCheckoutClose = () => {
+    setSelectedProduct(null);
+  };
+
+  const handleCheckoutSuccess = () => {
+    setShowSuccess(true);
+    setSelectedProduct(null);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-10">
+      {/* Mensagem de Sucesso */}
+      {showSuccess && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 flex items-center gap-3"
+        >
+          <CheckCircle className="text-green-500" size={24} />
+          <div>
+            <p className="text-green-500 font-bold">Assinatura realizada com sucesso!</p>
+            <p className="text-green-500/70 text-sm">Seus recursos já estão disponíveis.</p>
+          </div>
+          <button 
+            onClick={() => setShowSuccess(false)}
+            className="ml-auto text-green-500/50 hover:text-green-500"
+          >
+            <XCircle size={20} />
+          </button>
+        </motion.div>
+      )}
+
+      {/* Mensagem de Cancelamento */}
+      {showCanceled && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 flex items-center gap-3"
+        >
+          <XCircle className="text-yellow-500" size={24} />
+          <div>
+            <p className="text-yellow-500 font-bold">Checkout cancelado</p>
+            <p className="text-yellow-500/70 text-sm">Você pode tentar novamente quando quiser.</p>
+          </div>
+          <button 
+            onClick={() => setShowCanceled(false)}
+            className="ml-auto text-yellow-500/50 hover:text-yellow-500"
+          >
+            <XCircle size={20} />
+          </button>
+        </motion.div>
+      )}
+
       <div className="text-center">
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
@@ -117,6 +196,7 @@ export default function SubscriptionView() {
 
               <CardFooter className="pt-4 border-t border-white/5">
                 <Button 
+                  onClick={() => handleSubscribe(plan.id)}
                   className={cn(
                     "w-full font-black uppercase tracking-widest text-[11px] h-11 rounded-none transition-all duration-300",
                     plan.isPremium 
@@ -156,6 +236,16 @@ export default function SubscriptionView() {
           A ativação dos recursos é imediata após a compensação.
         </p>
       </div>
+
+      {/* Stripe Checkout Modal */}
+      {selectedProduct && (
+        <StripeCheckout
+          productId={selectedProduct}
+          isOpen={!!selectedProduct}
+          onClose={handleCheckoutClose}
+          onSuccess={handleCheckoutSuccess}
+        />
+      )}
     </div>
   );
 }

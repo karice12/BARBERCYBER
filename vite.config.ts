@@ -4,11 +4,24 @@ import path from 'path';
 import {defineConfig, loadEnv} from 'vite';
 
 export default defineConfig(({mode}) => {
+  // Carregar env vars de múltiplas fontes
   const env = loadEnv(mode, '.', '');
+  const vercelEnv = loadEnv(mode, '/vercel/share', '');
+  
+  // Stripe publishable key (pode vir de NEXT_PUBLIC_ ou STRIPE_)
+  const stripePublishableKey = 
+    vercelEnv.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 
+    vercelEnv.STRIPE_PUBLISHABLE_KEY ||
+    env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 
+    env.STRIPE_PUBLISHABLE_KEY || 
+    '';
+  
   return {
     plugins: [react(), tailwindcss()],
     define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || vercelEnv.GEMINI_API_KEY),
+      'process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY': JSON.stringify(stripePublishableKey),
+      'import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(stripePublishableKey),
     },
     resolve: {
       alias: {

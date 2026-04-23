@@ -1,9 +1,27 @@
+import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Scissors, Calendar, MessageSquare, TrendingUp, ShieldCheck, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import StripeCheckout from '@/components/checkout/StripeCheckout';
 
 export default function LandingPage() {
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
+
+  const handleSubscribe = (productId: string) => {
+    setSelectedProduct(productId);
+  };
+
+  const handleCheckoutClose = () => {
+    setSelectedProduct(null);
+  };
+
+  const handleCheckoutSuccess = () => {
+    setSelectedProduct(null);
+    // Redireciona para o dashboard após sucesso
+    window.location.href = '/dashboard?welcome=true';
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Header/Nav */}
@@ -68,11 +86,13 @@ export default function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <Link to="/dashboard">
-            <Button size="lg" className="bg-cyber-blue text-[#050505] font-black text-lg px-12 py-7 rounded-xl hover:bg-cyber-blue/90 transition-all shadow-[0_0_20px_rgba(0,209,255,0.3)] active:scale-95">
-              ASSINAR AGORA
-            </Button>
-          </Link>
+          <Button 
+            size="lg" 
+            onClick={() => handleSubscribe('cyber-essential')}
+            className="bg-cyber-blue text-[#050505] font-black text-lg px-12 py-7 rounded-xl hover:bg-cyber-blue/90 transition-all shadow-[0_0_20px_rgba(0,209,255,0.3)] active:scale-95"
+          >
+            ASSINAR AGORA
+          </Button>
           <Button variant="outline" size="lg" className="text-lg px-12 py-7 rounded-xl border-cyber-blue/15 hover:bg-white/5 transition-all text-[#888888] hover:text-white">
             VER DEMO
           </Button>
@@ -132,9 +152,12 @@ export default function LandingPage() {
                 <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-cyber-blue" size={18} /> Finanças Básicas</li>
                 <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-cyber-blue" size={18} /> Relatórios: 3 / mês</li>
               </ul>
-              <Link to="/dashboard" className="w-full">
-                <Button className="w-full bg-white text-black font-black h-12 rounded-xl text-sm hover:bg-cyber-blue transition-colors">ASSINAR AGORA</Button>
-              </Link>
+              <Button 
+                onClick={() => handleSubscribe('cyber-essential')}
+                className="w-full bg-white text-black font-black h-12 rounded-xl text-sm hover:bg-cyber-blue transition-colors"
+              >
+                ASSINAR AGORA
+              </Button>
             </div>
 
             {/* Extension Plan */}
@@ -147,9 +170,12 @@ export default function LandingPage() {
                 <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-white/40" size={18} /> Controle Total</li>
                 <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-white/40" size={18} /> Sem taxas extras</li>
               </ul>
-              <Link to="/dashboard" className="w-full">
-                <Button className="w-full border border-white/20 text-white font-black h-12 rounded-xl text-sm hover:bg-white hover:text-black transition-all">CONTRATAR ADICIONAL</Button>
-              </Link>
+              <Button 
+                onClick={() => handleSubscribe('addon-plus5')}
+                className="w-full border border-white/20 text-white font-black h-12 rounded-xl text-sm hover:bg-white hover:text-black transition-all"
+              >
+                CONTRATAR ADICIONAL
+              </Button>
             </div>
 
             {/* Enterprise Plan */}
@@ -165,9 +191,12 @@ export default function LandingPage() {
                 <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-cyber-orange" size={18} /> Políticas de Agendamento</li>
                 <li className="flex items-center gap-3 text-white/80 text-xs font-medium"><ShieldCheck className="text-cyber-orange" size={18} /> Relatórios Ilimitados</li>
               </ul>
-              <Link to="/dashboard" className="w-full">
-                <Button className="w-full bg-cyber-orange text-black font-black h-12 rounded-xl text-sm hover:bg-white transition-colors">UPGRADE TOTAL</Button>
-              </Link>
+              <Button 
+                onClick={() => handleSubscribe('cyber-enterprise')}
+                className="w-full bg-cyber-orange text-black font-black h-12 rounded-xl text-sm hover:bg-white transition-colors"
+              >
+                UPGRADE TOTAL
+              </Button>
             </div>
           </div>
         </div>
@@ -185,6 +214,16 @@ export default function LandingPage() {
           <a href="#" className="hover:text-cyber-blue transition-colors">Suporte</a>
         </div>
       </footer>
+
+      {/* Stripe Checkout Modal */}
+      {selectedProduct && (
+        <StripeCheckout
+          productId={selectedProduct}
+          isOpen={!!selectedProduct}
+          onClose={handleCheckoutClose}
+          onSuccess={handleCheckoutSuccess}
+        />
+      )}
     </div>
   );
 }
