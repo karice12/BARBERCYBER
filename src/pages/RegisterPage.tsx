@@ -1,30 +1,42 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Scissors, Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
+import { Scissors, Lock, Mail, User, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 
-export default function LoginPage() {
-  const { login } = useAuth();
+export default function RegisterPage() {
+  const { register } = useAuth();
   const navigate = useNavigate();
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (password !== confirm) {
+      setError('As senhas não coincidem.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('A senha deve ter no mínimo 6 caracteres.');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await login(email, password);
+      await register(name, email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao conectar.');
+      setError(err instanceof Error ? err.message : 'Erro ao criar conta.');
     } finally {
       setIsLoading(false);
     }
@@ -32,10 +44,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Effects */}
       <div className="absolute top-0 left-0 w-full h-full">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyber-blue/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyber-orange/10 rounded-full blur-[120px]" />
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyber-blue/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyber-orange/10 rounded-full blur-[120px]" />
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
       </div>
 
@@ -54,14 +65,32 @@ export default function LoginPage() {
             </span>
           </div>
           <h1 className="text-xl font-heading font-black uppercase tracking-widest text-[#888888]">
-            Injeção de Credenciais
+            Criar Nova Conta
           </h1>
         </div>
 
         <div className="bg-[#0a0a0a] border border-white/5 p-8 rounded-3xl relative">
-          <div className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-32 h-[1px] bg-gradient-to-r from-transparent via-cyber-blue to-transparent" />
+          <div className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-32 h-[1px] bg-gradient-to-r from-transparent via-cyber-orange to-transparent" />
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleRegister} className="space-y-5">
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase font-black tracking-widest text-[#888888]">
+                Nome da Barbearia / Proprietário
+              </Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-[#444]" size={16} />
+                <Input
+                  type="text"
+                  placeholder="Barbearia do João"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="pl-10 h-12 bg-white/[0.03] border-white/10 rounded-xl focus:border-cyber-orange focus:bg-white/[0.05] transition-all"
+                  required
+                  autoComplete="name"
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label className="text-[10px] uppercase font-black tracking-widest text-[#888888]">
                 E-mail
@@ -70,10 +99,10 @@ export default function LoginPage() {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-[#444]" size={16} />
                 <Input
                   type="email"
-                  placeholder="usuario@barbearia.com"
+                  placeholder="contato@barbearia.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12 bg-white/[0.03] border-white/10 rounded-xl focus:border-cyber-blue focus:bg-white/[0.05] transition-all"
+                  className="pl-10 h-12 bg-white/[0.03] border-white/10 rounded-xl focus:border-cyber-orange focus:bg-white/[0.05] transition-all"
                   required
                   autoComplete="email"
                 />
@@ -82,18 +111,36 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <Label className="text-[10px] uppercase font-black tracking-widest text-[#888888]">
-                Chave de Acesso
+                Senha
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#444]" size={16} />
+                <Input
+                  type="password"
+                  placeholder="mínimo 6 caracteres"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10 h-12 bg-white/[0.03] border-white/10 rounded-xl focus:border-cyber-orange focus:bg-white/[0.05] transition-all"
+                  required
+                  autoComplete="new-password"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase font-black tracking-widest text-[#888888]">
+                Confirmar Senha
               </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#444]" size={16} />
                 <Input
                   type="password"
                   placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 h-12 bg-white/[0.03] border-white/10 rounded-xl focus:border-cyber-blue focus:bg-white/[0.05] transition-all"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  className="pl-10 h-12 bg-white/[0.03] border-white/10 rounded-xl focus:border-cyber-orange focus:bg-white/[0.05] transition-all"
                   required
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                 />
               </div>
             </div>
@@ -112,16 +159,16 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-cyber-blue text-black font-black uppercase tracking-tighter h-12 rounded-xl hover:shadow-[0_0_20px_rgba(0,209,255,0.4)] transition-all active:scale-95 disabled:opacity-50"
+              className="w-full bg-cyber-orange text-black font-black uppercase tracking-tighter h-12 rounded-xl hover:shadow-[0_0_20px_rgba(255,138,0,0.4)] transition-all active:scale-95 disabled:opacity-50"
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                  SINCRONIZANDO...
+                  INICIALIZANDO CONTA...
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  CONECTAR AO NÚCLEO <ArrowRight size={18} />
+                  INICIAR NO SISTEMA <ArrowRight size={18} />
                 </div>
               )}
             </Button>
@@ -129,12 +176,9 @@ export default function LoginPage() {
 
           <div className="mt-8 pt-6 border-t border-white/5 text-center">
             <p className="text-[10px] uppercase font-bold text-[#444]">
-              Novo no sistema?{' '}
-              <Link
-                to="/register"
-                className="text-cyber-blue hover:underline"
-              >
-                Criar conta
+              Já tem acesso?{' '}
+              <Link to="/login" className="text-cyber-blue hover:underline">
+                Entrar
               </Link>
             </p>
           </div>
