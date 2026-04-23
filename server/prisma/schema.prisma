@@ -4,7 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum PlanType {
@@ -19,30 +21,30 @@ enum AppointmentStatus {
   NO_SHOW
 }
 
-model User {
-  id            String        @id @default(uuid()) @db.Uuid
-  name          String
-  email         String        @unique
-  password      String
-  planType      PlanType      @default(ESSENTIAL)
-  hasPlus5Addon Boolean       @default(false)
-  createdAt     DateTime      @default(now())
+// Espelha a tabela public.profiles do Supabase.
+// O campo "id" é o mesmo UUID do auth.users (Supabase Auth).
+model Profile {
+  id            String        @id @db.Uuid
+  name          String        @default("")
+  planType      PlanType      @default(ESSENTIAL) @map("plan_type")
+  hasPlus5Addon Boolean       @default(false)    @map("has_plus5_addon")
+  createdAt     DateTime      @default(now())    @map("created_at")
 
   staff         Staff[]
   appointments  Appointment[]
   transactions  Transaction[]
   reportLogs    ReportLog[]
 
-  @@map("users")
+  @@map("profiles")
 }
 
 model ReportLog {
   id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
+  userId    String   @db.Uuid  @map("user_id")
   endpoint  String
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile   Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([createdAt])
@@ -53,12 +55,12 @@ model Staff {
   id             String        @id @default(uuid()) @db.Uuid
   name           String
   specialty      String
-  commissionRate Float         @default(0.40)
-  isAvailable    Boolean
-  userId         String        @db.Uuid
-  createdAt      DateTime      @default(now())
+  commissionRate Float         @default(0.40) @map("commission_rate")
+  isAvailable    Boolean       @map("is_available")
+  userId         String        @db.Uuid @map("user_id")
+  createdAt      DateTime      @default(now()) @map("created_at")
 
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile        Profile       @relation(fields: [userId], references: [id], onDelete: Cascade)
   appointments   Appointment[]
 
   @@index([userId])
@@ -67,17 +69,18 @@ model Staff {
 
 model Appointment {
   id           String            @id @default(uuid()) @db.Uuid
-  clientName   String
-  clientPhone  String
-  serviceName  String
+  clientName   String            @map("client_name")
+  clientPhone  String            @map("client_phone")
+  serviceName  String            @map("service_name")
   price        Float
-  scheduledAt  DateTime
+  scheduledAt  DateTime          @map("scheduled_at")
   status       AppointmentStatus @default(PENDING)
-  staffId      String            @db.Uuid
-  userId       String            @db.Uuid
+  staffId      String            @db.Uuid @map("staff_id")
+  userId       String            @db.Uuid @map("user_id")
+  createdAt    DateTime          @default(now()) @map("created_at")
 
   staff        Staff             @relation(fields: [staffId], references: [id], onDelete: Restrict)
-  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile      Profile           @relation(fields: [userId], references: [id], onDelete: Cascade)
   transaction  Transaction?
 
   @@index([staffId])
@@ -88,15 +91,16 @@ model Appointment {
 
 model Transaction {
   id              String      @id @default(uuid()) @db.Uuid
-  grossValue      Float
-  commissionValue Float
-  netProfit       Float
+  grossValue      Float       @map("gross_value")
+  commissionValue Float       @map("commission_value")
+  netProfit       Float       @map("net_profit")
   date            DateTime
-  appointmentId   String      @unique @db.Uuid
-  userId          String      @db.Uuid
+  appointmentId   String      @unique @db.Uuid @map("appointment_id")
+  userId          String      @db.Uuid @map("user_id")
+  createdAt       DateTime    @default(now()) @map("created_at")
 
   appointment     Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile         Profile     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([date])
